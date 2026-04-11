@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - Online Shopping Web</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body { background:#f0f2f5; }
+        .orders-wrap { padding:2.5rem 0 4rem; }
+        .orders-title { font-size:1.75rem; margin-bottom:1.75rem; }
+        .empty-orders { text-align:center; padding:5rem 2rem; background:#fff; border-radius:14px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+        .empty-orders .icon { font-size:4rem; margin-bottom:1rem; }
+        .order-card { background:#fff; border-radius:14px; box-shadow:0 2px 8px rgba(0,0,0,0.06); margin-bottom:1.5rem; overflow:hidden; }
+        .order-header { display:flex; justify-content:space-between; align-items:center; padding:1.25rem 1.5rem; background:#f9fafb; border-bottom:1px solid #e5e7eb; flex-wrap:wrap; gap:0.75rem; }
+        .order-id { font-family:monospace; font-size:0.9rem; font-weight:600; color:#1f2937; }
+        .order-date { font-size:0.82rem; color:#6b7280; }
+        .order-status { padding:0.3rem 0.85rem; border-radius:999px; font-size:0.78rem; font-weight:600; background:#ecfdf5; color:#065f46; }
+        .order-body { padding:1.25rem 1.5rem; }
+        .order-item { display:flex; align-items:center; gap:1rem; padding:0.75rem 0; border-bottom:1px solid #f3f4f6; }
+        .order-item:last-child { border-bottom:none; }
+        .order-img { width:64px; height:64px; object-fit:cover; border-radius:10px; flex-shrink:0; }
+        .order-item-info { flex-grow:1; }
+        .order-item-title { font-size:0.9rem; font-weight:500; margin-bottom:0.2rem; }
+        .order-item-qty { font-size:0.8rem; color:#6b7280; }
+        .order-item-price { font-weight:700; color:#f59e0b; white-space:nowrap; }
+        .order-footer { display:flex; justify-content:space-between; align-items:center; padding:1rem 1.5rem; background:#f9fafb; border-top:1px solid #e5e7eb; flex-wrap:wrap; gap:0.5rem; }
+        .order-total-label { font-size:0.85rem; color:#6b7280; }
+        .order-total-val { font-size:1.1rem; font-weight:700; color:#f59e0b; }
+        .payment-tag { font-size:0.75rem; background:#eff6ff; color:#1d4ed8; padding:0.2rem 0.6rem; border-radius:999px; font-weight:500; }
+        .delivery-tracker { display:flex; align-items:center; gap:0; margin-top:1rem; padding:1rem; background:#f0fdf4; border-radius:10px; }
+        .tracker-step { display:flex; flex-direction:column; align-items:center; gap:0.25rem; flex:1; }
+        .tracker-icon { width:36px; height:36px; border-radius:50%; background:#d1fae5; display:flex; align-items:center; justify-content:center; font-size:1rem; }
+        .tracker-icon.done { background:#10b981; }
+        .tracker-label { font-size:0.7rem; color:#064e3b; font-weight:500; text-align:center; }
+        .tracker-line { flex:1; height:2px; background:#a7f3d0; margin-bottom:18px; max-width:40px; }
+    </style>
+</head>
+<body>
+<nav class="navbar" id="navbar"></nav>
+
+<main class="container orders-wrap">
+    <h1 class="orders-title">📦 My Orders</h1>
+    <div id="orders-container">
+        <p style="text-align:center;color:#6b7280">Loading your orders...</p>
+    </div>
+</main>
+
+<footer class="footer">
+    <p>🛍️ <strong style="color:#fff">Online Shopping Web</strong> &nbsp;|&nbsp; &copy; 2026</p>
+</footer>
+
+<script src="/js/api.js"></script>
+<script src="/js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    const user = getCurrentUser();
+    if (!user) { window.location.href = '/login.html?redirect=orders'; return; }
+    await renderOrders();
+});
+
+async function renderOrders() {
+    const container = document.getElementById('orders-container');
+    const res = await api.getMyOrders();
+    
+    if (!res.success) {
+        container.innerHTML = `<div class="empty-orders"><div class="icon">❌</div><p>${res.message || 'Error fetching orders'}</p></div>`;
+        return;
+    }
+
+    const orders = res.data;
+
+    if (!orders || orders.length === 0) {
+        container.innerHTML = `
+            <div class="empty-orders">
+                <div class="icon">📦</div>
+                <h3 style="margin-bottom:0.5rem">No orders yet</h3>
+                <p style="color:#6b7280;margin-bottom:1.5rem">You haven't placed any orders. Start shopping!</p>
+                <a href="/index.html" class="btn btn-primary" style="padding:0.85rem 2rem">🛍️ Shop Now</a>
+            </div>`;
+        return;
+    }
+
+    container.innerHTML = orders.map(order => {
+        const orderId = order.id || 'N/A';
+        const dateObj = order.createdAt ? new Date(order.createdAt) : new Date();
+        const date = dateObj.toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
+        const time = dateObj.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+        
+        // Items might be empty in this simplified demo
+        const items = order.items || [];
+        const itemsHtml = items.length > 0 ? items.map(item => `
+            <div class="order-item">
+                <img src="${item.imageUrl || 'https://via.placeholder.com/64'}" class="order-img" onerror="this.src='https://via.placeholder.com/64'">
+                <div class="order-item-info">
+                    <div class="order-item-title">${item.title || 'Product'}</div>
+                    <div class="order-item-qty">Qty: ${item.quantity || 1}</div>
+                </div>
+                <div class="order-item-price">${formatINR(item.unitPrice || 0)}</div>
+            </div>`).join('') : '<p style="font-size:0.85rem;color:#6b7280;padding:1rem 0">Order details processed.</p>';
+
+        return `
+            <div class="order-card">
+                <div class="order-header">
+                    <div>
+                        <div class="order-id">Order #ORD-${orderId}</div>
+                        <div class="order-date">Placed on ${date} at ${time}</div>
+                    </div>
+                    <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap">
+                        <span class="payment-tag">💳 ONLINE</span>
+                        <span class="order-status">✅ ${order.status || 'CONFIRMED'}</span>
+                    </div>
+                </div>
+                <div class="order-body">
+                    ${itemsHtml}
+                    <div class="delivery-tracker">
+                        <div class="tracker-step"><div class="tracker-icon done">✅</div><div class="tracker-label">Ordered</div></div>
+                        <div class="tracker-line"></div>
+                        <div class="tracker-step"><div class="tracker-icon done">📦</div><div class="tracker-label">Packed</div></div>
+                        <div class="tracker-line"></div>
+                        <div class="tracker-step"><div class="tracker-icon">🚚</div><div class="tracker-label">Shipped</div></div>
+                        <div class="tracker-line"></div>
+                        <div class="tracker-step"><div class="tracker-icon">🏠</div><div class="tracker-label">Delivered</div></div>
+                    </div>
+                </div>
+                <div class="order-footer">
+                    <div>
+                        <div class="order-total-label">${items.length || 1} item(s)</div>
+                    </div>
+                    <div style="text-align:right">
+                        <div class="order-total-label">Total Paid</div>
+                        <div class="order-total-val">${formatINR(order.totalAmount || 0)}</div>
+                    </div>
+                </div>
+            </div>`;
+    }).join('');
+}
+</script>
+</body>
+</html>

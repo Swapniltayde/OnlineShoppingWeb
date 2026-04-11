@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Online Shopping Web</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body { background:#f0f2f5; }
+        .admin-layout { display:grid; grid-template-columns:240px 1fr; min-height:calc(100vh - 58px); }
+
+        /* Sidebar */
+        .admin-sidebar {
+            background:#1f2937; color:#d1d5db; padding:1.5rem 0;
+            position:sticky; top:58px; height:calc(100vh - 58px); overflow-y:auto;
+        }
+        .sidebar-brand { padding:0 1.5rem 1.5rem; font-size:1.1rem; font-weight:700; color:#f59e0b; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:1rem; }
+        .sidebar-section { padding:0.5rem 1.5rem; font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:#6b7280; margin-top:1rem; }
+        .sidebar-link {
+            display:flex; align-items:center; gap:0.75rem; padding:0.75rem 1.5rem;
+            color:#d1d5db; cursor:pointer; transition:all 0.2s; font-size:0.9rem;
+            border-left:3px solid transparent; text-decoration:none;
+        }
+        .sidebar-link:hover, .sidebar-link.active { background:rgba(245,158,11,0.1); color:#f59e0b; border-left-color:#f59e0b; }
+
+        /* Stats cards */
+        .admin-main { padding:2rem; }
+        .admin-header { margin-bottom:2rem; }
+        .admin-header h1 { font-size:1.75rem; margin-bottom:0.25rem; }
+        .admin-header p { color:#6b7280; font-size:0.9rem; }
+        .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.25rem; margin-bottom:2rem; }
+        .stat-card { background:#fff; border-radius:12px; padding:1.5rem; box-shadow:0 2px 8px rgba(0,0,0,0.06); display:flex; align-items:center; gap:1rem; }
+        .stat-icon { width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0; }
+        .stat-value { font-size:1.75rem; font-weight:700; line-height:1; }
+        .stat-label { font-size:0.82rem; color:#6b7280; margin-top:0.2rem; }
+
+        /* Products table */
+        .admin-card { background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06); overflow:hidden; margin-bottom:2rem; }
+        .admin-card-header { display:flex; justify-content:space-between; align-items:center; padding:1.25rem 1.5rem; border-bottom:1px solid #f3f4f6; }
+        .admin-card-header h2 { font-size:1.1rem; }
+        .products-table { width:100%; border-collapse:collapse; }
+        .products-table th { background:#f9fafb; padding:0.85rem 1rem; text-align:left; font-size:0.78rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:#6b7280; border-bottom:1px solid #e5e7eb; }
+        .products-table td { padding:0.9rem 1rem; border-bottom:1px solid #f3f4f6; font-size:0.9rem; vertical-align:middle; }
+        .products-table tr:last-child td { border-bottom:none; }
+        .products-table tr:hover td { background:#fafafa; }
+        .product-thumb { width:50px; height:50px; object-fit:cover; border-radius:8px; }
+        .badge { display:inline-block; padding:0.2rem 0.6rem; border-radius:999px; font-size:0.75rem; font-weight:500; }
+        .badge-green { background:#ecfdf5; color:#065f46; }
+        .badge-yellow { background:#fffbeb; color:#92400e; }
+        .btn-edit { background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; padding:0.3rem 0.75rem; border-radius:6px; cursor:pointer; font-size:0.8rem; font-family:'Inter',sans-serif; transition:all 0.2s; }
+        .btn-edit:hover { background:#1d4ed8; color:#fff; }
+        .btn-delete { background:#fef2f2; color:#991b1b; border:1px solid #fca5a5; padding:0.3rem 0.75rem; border-radius:6px; cursor:pointer; font-size:0.8rem; font-family:'Inter',sans-serif; transition:all 0.2s; }
+        .btn-delete:hover { background:#991b1b; color:#fff; }
+
+        /* Modal */
+        .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; display:flex; justify-content:center; align-items:center; padding:1rem; backdrop-filter:blur(4px); }
+        .modal-overlay.hidden { display:none; }
+        .modal { background:#fff; border-radius:16px; width:100%; max-width:560px; max-height:90vh; overflow-y:auto; box-shadow:0 25px 60px rgba(0,0,0,0.25); animation:modalIn 0.25s ease; }
+        @keyframes modalIn { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
+        .modal-header { display:flex; justify-content:space-between; align-items:center; padding:1.5rem; border-bottom:1px solid #e5e7eb; }
+        .modal-header h3 { font-size:1.2rem; }
+        .modal-close { background:none; border:none; font-size:1.5rem; cursor:pointer; color:#6b7280; line-height:1; }
+        .modal-body { padding:1.5rem; }
+        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+        .modal-footer { padding:1rem 1.5rem; border-top:1px solid #e5e7eb; display:flex; gap:0.75rem; justify-content:flex-end; }
+
+        @media(max-width:900px){ .admin-layout{grid-template-columns:1fr;} .admin-sidebar{display:none;} .stats-grid{grid-template-columns:repeat(2,1fr);} }
+        @media(max-width:480px){ .stats-grid{grid-template-columns:1fr;} }
+    </style>
+</head>
+<body>
+<nav class="navbar" id="navbar"></nav>
+
+<div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-brand">⚙️ Admin Panel</div>
+        <div class="sidebar-section">Management</div>
+        <a class="sidebar-link active" onclick="showSection('products')">📦 Products</a>
+        <a class="sidebar-link" onclick="showSection('orders')">🧾 Orders</a>
+        <div class="sidebar-section">Site</div>
+        <a class="sidebar-link" href="/index.html">🌐 View Store</a>
+        <a class="sidebar-link" href="#" onclick="logout();return false;">🚪 Sign Out</a>
+    </aside>
+
+    <!-- Main -->
+    <main class="admin-main" id="admin-content">
+        <!-- Injected by JS -->
+    </main>
+</div>
+
+<!-- Add/Edit Product Modal -->
+<div class="modal-overlay hidden" id="product-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="modal-title">Add New Product</h3>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <form id="product-form">
+                <input type="hidden" id="edit-id">
+                <div class="form-group">
+                    <label class="form-label">Product Title *</label>
+                    <input type="text" id="f-title" class="form-control" placeholder="e.g. Samsung Galaxy S24" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Price (₹) *</label>
+                        <input type="number" id="f-price" class="form-control" placeholder="e.g. 29999" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Stock Quantity *</label>
+                        <input type="number" id="f-stock" class="form-control" placeholder="e.g. 50" required min="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category *</label>
+                    <select id="f-category" class="form-control" required>
+                        <option value="">Select category...</option>
+                        <option>Electronics</option><option>Laptops</option><option>Mobiles</option>
+                        <option>Accessories</option><option>Cameras</option><option>Kitchen</option>
+                        <option>Furniture</option><option>Footwear</option><option>Fashion</option>
+                        <option>Watches</option><option>Smart Home</option><option>Sports</option><option>Books</option><option>Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description *</label>
+                    <textarea id="f-desc" class="form-control" rows="3" placeholder="Short product description..." required style="resize:vertical"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Image URL</label>
+                    <input type="url" id="f-image" class="form-control" placeholder="https://images.unsplash.com/...">
+                    <p style="font-size:0.78rem;color:#6b7280;margin-top:0.35rem">Use an Unsplash URL or leave blank for a placeholder.</p>
+                </div>
+                <div id="modal-msg" style="display:none;padding:0.65rem 1rem;border-radius:8px;font-size:0.85rem;margin-top:0.5rem"></div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveProduct()">💾 Save Product</button>
+        </div>
+    </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/app.js"></script>
+<script>
+// Guard: Admin only
+window.addEventListener('DOMContentLoaded', () => {
+    const user = getCurrentUser();
+    if (!user || user.role !== 'ADMIN') {
+        alert('Access denied. Admins only.');
+        window.location.href = '/login.html';
+    }
+    renderAdminContent();
+});
+
+function renderAdminContent() {
+    const products = ProductStore.getAll();
+    const orders   = OrderStore.getAll();
+    const totalRevenue = orders.reduce((s, o) => s + (o.total || 0), 0);
+
+    document.getElementById('admin-content').innerHTML = `
+        <div class="admin-header">
+            <h1>Admin Dashboard</h1>
+            <p>Manage your store's products and orders.</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fffbeb">📦</div>
+                <div><div class="stat-value">${products.length}</div><div class="stat-label">Total Products</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#eff6ff">🧾</div>
+                <div><div class="stat-value">${orders.length}</div><div class="stat-label">Total Orders</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#ecfdf5">💰</div>
+                <div><div class="stat-value">${formatINR(totalRevenue)}</div><div class="stat-label">Total Revenue</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fef2f2">⚠️</div>
+                <div><div class="stat-value">${products.filter(p => p.stockQuantity < 5).length}</div><div class="stat-label">Low Stock Items</div></div>
+            </div>
+        </div>
+
+        <!-- Products Table -->
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h2>All Products (${products.length})</h2>
+                <button class="btn btn-primary btn-sm" onclick="openAddModal()">＋ Add Product</button>
+            </div>
+            <div style="overflow-x:auto">
+                <table class="products-table" id="products-table">
+                    <thead>
+                        <tr>
+                            <th>Image</th><th>Product</th><th>Category</th>
+                            <th>Price</th><th>Stock</th><th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="products-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Orders -->
+        <div class="admin-card">
+            <div class="admin-card-header"><h2>Recent Orders (${orders.length})</h2></div>
+            <div id="admin-orders-list">${renderAdminOrders(orders)}</div>
+        </div>
+    `;
+    renderProductsTable();
+}
+
+function renderProductsTable() {
+    const products = ProductStore.getAll();
+    const tbody = document.getElementById('products-tbody');
+    if (!tbody) return;
+    if (products.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:#6b7280">No products yet. Add your first product!</td></tr>';
+        return;
+    }
+    tbody.innerHTML = products.map(p => `
+        <tr>
+            <td><img src="${p.imageUrl || 'https://via.placeholder.com/50'}" class="product-thumb" onerror="this.src='https://via.placeholder.com/50'"></td>
+            <td><div style="font-weight:500;max-width:220px">${p.title}</div><div style="font-size:0.78rem;color:#6b7280;margin-top:2px">#${p.id}</div></td>
+            <td><span class="badge badge-yellow">${p.category}</span></td>
+            <td style="font-weight:600;color:#f59e0b">${formatINR(p.price)}</td>
+            <td><span class="badge ${p.stockQuantity > 5 ? 'badge-green' : 'badge' }" style="${p.stockQuantity <= 5 ? 'background:#fef2f2;color:#991b1b' : ''}">${p.stockQuantity}</span></td>
+            <td style="display:flex;gap:0.4rem;flex-wrap:wrap">
+                <button class="btn-edit" onclick="openEditModal(${p.id})">✏️ Edit</button>
+                <button class="btn-delete" onclick="deleteProduct(${p.id})">🗑 Delete</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function renderAdminOrders(orders) {
+    if (orders.length === 0) return '<p style="text-align:center;padding:2rem;color:#6b7280">No orders placed yet.</p>';
+    return `<table class="products-table"><thead><tr><th>Order ID</th><th>User</th><th>Items</th><th>Total</th><th>Date</th><th>Status</th></tr></thead><tbody>
+        ${orders.map(o => `<tr>
+            <td style="font-family:monospace;font-size:0.82rem">${o.id}</td>
+            <td>${o.userEmail || '—'}</td>
+            <td>${o.items ? o.items.length : '—'} item(s)</td>
+            <td style="font-weight:600;color:#f59e0b">${formatINR(o.total || 0)}</td>
+            <td>${new Date(o.createdAt).toLocaleDateString('en-IN')}</td>
+            <td><span class="badge badge-green">${o.status}</span></td>
+        </tr>`).join('')}
+    </tbody></table>`;
+}
+
+function openAddModal() {
+    document.getElementById('modal-title').textContent = 'Add New Product';
+    document.getElementById('product-form').reset();
+    document.getElementById('edit-id').value = '';
+    hideModalMsg();
+    document.getElementById('product-modal').classList.remove('hidden');
+}
+
+function openEditModal(id) {
+    const p = ProductStore.getById(id);
+    if (!p) return;
+    document.getElementById('modal-title').textContent = 'Edit Product';
+    document.getElementById('edit-id').value = p.id;
+    document.getElementById('f-title').value = p.title;
+    document.getElementById('f-price').value = p.price;
+    document.getElementById('f-stock').value = p.stockQuantity;
+    document.getElementById('f-category').value = p.category;
+    document.getElementById('f-desc').value = p.description;
+    document.getElementById('f-image').value = p.imageUrl || '';
+    hideModalMsg();
+    document.getElementById('product-modal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('product-modal').classList.add('hidden');
+}
+
+function hideModalMsg() {
+    const m = document.getElementById('modal-msg');
+    m.style.display = 'none'; m.textContent = '';
+}
+
+function saveProduct() {
+    const msgEl = document.getElementById('modal-msg');
+    const title    = document.getElementById('f-title').value.trim();
+    const price    = parseFloat(document.getElementById('f-price').value);
+    const stock    = parseInt(document.getElementById('f-stock').value);
+    const category = document.getElementById('f-category').value;
+    const desc     = document.getElementById('f-desc').value.trim();
+    const imageUrl = document.getElementById('f-image').value.trim() || 'https://via.placeholder.com/400x300?text=' + encodeURIComponent(title);
+    const editId   = document.getElementById('edit-id').value;
+
+    if (!title || !price || isNaN(stock) || !category || !desc) {
+        msgEl.textContent = '⚠️ Please fill all required fields.';
+        msgEl.style.cssText = 'display:block;background:#fef2f2;border:1px solid #fca5a5;color:#991b1b;padding:0.65rem 1rem;border-radius:8px;font-size:0.85rem;margin-top:0.5rem';
+        return;
+    }
+
+    const data = { title, price, stockQuantity: stock, category, description: desc, imageUrl };
+
+    if (editId) {
+        ProductStore.update(editId, data);
+        msgEl.textContent = '✅ Product updated successfully!';
+    } else {
+        ProductStore.add(data);
+        msgEl.textContent = '✅ Product added successfully!';
+    }
+    msgEl.style.cssText = 'display:block;background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46;padding:0.65rem 1rem;border-radius:8px;font-size:0.85rem;margin-top:0.5rem';
+    setTimeout(() => { closeModal(); renderAdminContent(); }, 1000);
+}
+
+function deleteProduct(id) {
+    const p = ProductStore.getById(id);
+    if (!confirm(`Delete "${p.title}"? This cannot be undone.`)) return;
+    ProductStore.delete(id);
+    renderAdminContent();
+    showToast('🗑 Product deleted.', 'error');
+}
+
+function showSection(s) {
+    document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
+    event.target.classList.add('active');
+    renderAdminContent();
+}
+</script>
+</body>
+</html>

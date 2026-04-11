@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Online Shopping Web</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body { background:#f0f2f5; }
+        .checkout-wrap { display:grid; grid-template-columns:1.4fr 1fr; gap:2rem; padding:2.5rem 0 4rem; }
+
+        /* Order summary */
+        .checkout-summary { background:#fff; border-radius:14px; padding:1.75rem; box-shadow:0 2px 8px rgba(0,0,0,0.06); height:fit-content; }
+        .checkout-summary h2 { margin-bottom:1.25rem; font-size:1.15rem; }
+        .co-item { display:flex; gap:1rem; align-items:center; padding:0.85rem 0; border-bottom:1px solid #f3f4f6; }
+        .co-item:last-of-type { border-bottom:2px solid #e5e7eb; }
+        .co-img { width:60px; height:60px; object-fit:cover; border-radius:8px; flex-shrink:0; }
+        .co-title { font-size:0.9rem; font-weight:500; }
+        .co-qty { font-size:0.8rem; color:#6b7280; }
+        .co-price { margin-left:auto; font-weight:700; color:#f59e0b; white-space:nowrap; }
+        .totals-row { display:flex; justify-content:space-between; padding:0.5rem 0; font-size:0.9rem; }
+        .totals-final { font-size:1.15rem; font-weight:700; border-top:2px solid #f59e0b; padding-top:0.75rem; margin-top:0.25rem; color:#f59e0b; }
+
+        /* Payment */
+        .checkout-payment { background:#fff; border-radius:14px; padding:1.75rem; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+        .checkout-payment h2 { margin-bottom:1.25rem; font-size:1.15rem; }
+        .pay-tabs { display:flex; gap:0; border:1.5px solid #e5e7eb; border-radius:10px; overflow:hidden; margin-bottom:1.5rem; }
+        .pay-tab { flex:1; padding:0.65rem; text-align:center; font-size:0.82rem; font-weight:500; cursor:pointer; transition:all 0.2s; border:none; background:#f9fafb; font-family:'Inter',sans-serif; color:#6b7280; }
+        .pay-tab.active { background:#1f2937; color:#fff; }
+        .pay-panel { display:none; }
+        .pay-panel.active { display:block; }
+
+        /* UPI */
+        .upi-options { display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:1.25rem; }
+        .upi-app { display:flex; align-items:center; gap:0.5rem; padding:0.6rem 1rem; border:1.5px solid #e5e7eb; border-radius:10px; cursor:pointer; font-size:0.85rem; font-weight:500; transition:all 0.2s; background:#fff; }
+        .upi-app:hover, .upi-app.selected { border-color:#f59e0b; background:#fffbeb; color:#92400e; }
+
+        /* Card */
+        .card-number-wrap { position:relative; }
+        .card-icons { position:absolute; right:0.75rem; top:50%; transform:translateY(-50%); display:flex; gap:0.25rem; font-size:1.2rem; }
+
+        /* COD */
+        .cod-info { background:#f0fdf4; border:1.5px solid #86efac; border-radius:10px; padding:1.25rem; text-align:center; }
+        .cod-icon { font-size:2.5rem; margin-bottom:0.5rem; }
+        .cod-info p { font-size:0.9rem; color:#166534; font-weight:500; }
+
+        /* Pay button */
+        .pay-btn { width:100%; padding:1rem; background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff; border:none; border-radius:12px; font-size:1.1rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.25s; box-shadow:0 4px 15px rgba(245,158,11,0.4); margin-top:1.5rem; }
+        .pay-btn:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(245,158,11,0.5); }
+        .pay-btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+
+        /* Security badges */
+        .security-badges { display:flex; justify-content:center; gap:1.5rem; margin-top:1rem; flex-wrap:wrap; }
+        .sec-badge { font-size:0.75rem; color:#6b7280; display:flex; align-items:center; gap:0.3rem; }
+
+        /* SUCCESS SCREEN */
+        .success-screen { display:none; position:fixed; inset:0; background:#fff; z-index:500; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2rem; }
+        .success-screen.show { display:flex; }
+        .success-anim { position:relative; margin-bottom:2rem; }
+        .success-circle { width:120px; height:120px; border-radius:50%; background:linear-gradient(135deg,#10b981,#059669); display:flex; align-items:center; justify-content:center; font-size:3.5rem; box-shadow:0 0 0 0 rgba(16,185,129,0.4); animation:pulse 2s infinite; margin:0 auto; }
+        @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(16,185,129,0.4)} 70%{box-shadow:0 0 0 20px rgba(16,185,129,0)} 100%{box-shadow:0 0 0 0 rgba(16,185,129,0)} }
+        .confetti { position:absolute; top:0; left:50%; transform:translateX(-50%); pointer-events:none; }
+        .success-title { font-size:2.5rem; font-weight:700; color:#111827; margin-bottom:0.75rem; }
+        .success-sub { font-size:1.1rem; color:#6b7280; margin-bottom:1rem; }
+        .order-id-box { background:#f9fafb; border:1.5px solid #e5e7eb; border-radius:10px; padding:1rem 2rem; display:inline-block; margin-bottom:1.5rem; font-size:0.9rem; }
+        .order-id-box span { font-family:monospace; font-size:1rem; font-weight:700; color:#f59e0b; display:block; margin-top:0.25rem; }
+        .delivery-info { background:#eff6ff; border-radius:12px; padding:1.25rem 2rem; max-width:420px; margin:0 auto 2rem; }
+        .delivery-info p { font-size:0.95rem; color:#1e40af; font-weight:500; }
+        .delivery-steps { display:flex; gap:2rem; justify-content:center; margin-top:1rem; flex-wrap:wrap; }
+        .d-step { display:flex; flex-direction:column; align-items:center; gap:0.3rem; font-size:0.8rem; color:#1e40af; }
+        .d-step span { font-size:1.5rem; }
+
+        @media(max-width:768px){ .checkout-wrap{grid-template-columns:1fr;} }
+    </style>
+</head>
+<body>
+<nav class="navbar" id="navbar"></nav>
+
+<!-- Success Screen (hidden by default) -->
+<div class="success-screen" id="success-screen">
+    <div class="success-anim">
+        <div class="success-circle">✓</div>
+    </div>
+    <h1 class="success-title">🎉 Order Placed!</h1>
+    <p class="success-sub">Congratulations! Your payment was successful.</p>
+    <div class="order-id-box">
+        Order ID<span id="display-order-id">OSW...</span>
+    </div>
+    <div class="delivery-info">
+        <p>📦 Your order has been confirmed and will be delivered to you shortly!</p>
+        <div class="delivery-steps">
+            <div class="d-step"><span>✅</span>Ordered</div>
+            <div class="d-step"><span>📦</span>Packed</div>
+            <div class="d-step"><span>🚚</span>Shipped</div>
+            <div class="d-step"><span>🏠</span>Delivered</div>
+        </div>
+        <p style="margin-top:0.75rem;font-size:0.85rem;color:#3b82f6">Estimated delivery: <strong>3–5 business days</strong></p>
+    </div>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center">
+        <a href="/orders.html" class="btn btn-primary" style="padding:0.85rem 2rem">📦 View My Orders</a>
+        <a href="/index.html" class="btn btn-outline" style="padding:0.85rem 2rem">🛍️ Continue Shopping</a>
+    </div>
+</div>
+
+<main class="container" id="checkout-main">
+    <h1 style="margin:2.5rem 0 0.5rem">Secure Checkout</h1>
+    <p style="color:#6b7280;margin-bottom:0;font-size:0.9rem">🔒 256-bit SSL Encrypted &nbsp;|&nbsp; 100% Secure Payments</p>
+
+    <div class="checkout-wrap">
+        <!-- Order Summary -->
+        <div>
+            <div class="checkout-summary">
+                <h2>Order Summary</h2>
+                <div id="co-items"></div>
+                <div style="margin-top:1rem">
+                    <div class="totals-row"><span>Subtotal</span><span id="co-subtotal"></span></div>
+                    <div class="totals-row"><span>Delivery</span><span id="co-delivery" style="color:#10b981"></span></div>
+                    <div class="totals-row totals-final"><span>Total Payable</span><span id="co-total"></span></div>
+                </div>
+            </div>
+            <div style="background:#fff;border-radius:14px;padding:1.25rem;margin-top:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);font-size:0.85rem;color:#4b5563">
+                <strong style="display:block;margin-bottom:0.5rem">📍 Delivery Address</strong>
+                <span id="delivery-addr">Not set — login required</span>
+            </div>
+        </div>
+
+        <!-- Payment Panel -->
+        <div class="checkout-payment">
+            <h2>Payment Method</h2>
+
+            <div class="pay-tabs">
+                <button class="pay-tab active" onclick="switchTab('upi',this)">📱 UPI</button>
+                <button class="pay-tab" onclick="switchTab('card',this)">💳 Card</button>
+                <button class="pay-tab" onclick="switchTab('netbank',this)">🏦 NetBanking</button>
+                <button class="pay-tab" onclick="switchTab('cod',this)">💵 COD</button>
+            </div>
+
+            <!-- UPI -->
+            <div class="pay-panel active" id="panel-upi">
+                <p style="font-size:0.85rem;color:#6b7280;margin-bottom:1rem">Select UPI App:</p>
+                <div class="upi-options">
+                    <div class="upi-app" onclick="selectUpi(this)">🟢 GPay</div>
+                    <div class="upi-app" onclick="selectUpi(this)">🔵 PhonePe</div>
+                    <div class="upi-app" onclick="selectUpi(this)">🟡 Paytm</div>
+                    <div class="upi-app" onclick="selectUpi(this)">🔷 BHIM</div>
+                </div>
+                
+                <!-- QR Code Container -->
+                <div id="qr-container" class="qr-container">
+                    <img id="qr-img" src="" alt="UPI QR Code" class="qr-image">
+                    <div class="qr-info">
+                        <p>Scan this QR code using <strong><span id="selected-app-name">GPay</span></strong> to pay</p>
+                        <p style="font-size:0.75rem;margin-top:0.4rem">Amount: <strong id="qr-amount-text">₹0</strong></p>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top:1.5rem">
+                    <label class="form-label">Or enter UPI ID</label>
+                    <input type="text" id="upi-id" class="form-control" placeholder="e.g. yourname@upi">
+                </div>
+            </div>
+
+            <!-- Card -->
+            <div class="pay-panel" id="panel-card">
+                <div class="form-group card-number-wrap">
+                    <label class="form-label">Card Number</label>
+                    <input type="text" id="card-num" class="form-control" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCard(this)">
+                    <div class="card-icons">💳</div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+                    <div class="form-group">
+                        <label class="form-label">Expiry Date</label>
+                        <input type="text" class="form-control" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">CVV</label>
+                        <input type="password" class="form-control" placeholder="•••" maxlength="3">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Name on Card</label>
+                    <input type="text" class="form-control" placeholder="RAHUL SHARMA">
+                </div>
+            </div>
+
+            <!-- Net Banking -->
+            <div class="pay-panel" id="panel-netbank">
+                <div class="form-group">
+                    <label class="form-label">Select Your Bank</label>
+                    <select class="form-control">
+                        <option value="">Choose bank...</option>
+                        <option>SBI — State Bank of India</option>
+                        <option>HDFC Bank</option>
+                        <option>ICICI Bank</option>
+                        <option>Axis Bank</option>
+                        <option>Kotak Mahindra Bank</option>
+                        <option>Punjab National Bank</option>
+                        <option>Bank of Baroda</option>
+                        <option>Canara Bank</option>
+                        <option>Other Bank</option>
+                    </select>
+                </div>
+                <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:0.85rem;font-size:0.83rem;color:#92400e">
+                    ℹ️ You will be redirected to your bank's portal to complete payment.
+                </div>
+            </div>
+
+            <!-- COD -->
+            <div class="pay-panel" id="panel-cod">
+                <div class="cod-info">
+                    <div class="cod-icon">💵</div>
+                    <p>Pay cash when your order arrives at your doorstep.</p>
+                    <p style="margin-top:0.5rem;font-size:0.8rem;color:#065f46">Available across India. No extra charges.</p>
+                </div>
+            </div>
+
+            <div id="pay-err" style="display:none;background:#fef2f2;border:1px solid #fca5a5;color:#991b1b;padding:0.75rem;border-radius:8px;font-size:0.85rem;margin-top:0.75rem"></div>
+
+            <button class="pay-btn" id="pay-btn" onclick="processPayment()">
+                🔒 Pay <span id="pay-amount"></span>
+            </button>
+
+            <div class="security-badges">
+                <span class="sec-badge">🔒 256-bit SSL</span>
+                <span class="sec-badge">✅ PCI-DSS Compliant</span>
+                <span class="sec-badge">🛡️ Buyer Protection</span>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="footer">
+    <p>🛍️ <strong style="color:#fff">Online Shopping Web</strong> &nbsp;|&nbsp; &copy; 2026</p>
+</footer>
+
+<script src="/js/api.js"></script>
+<script src="/js/app.js"></script>
+<script>
+let activeTab = 'upi';
+let selectedUpiApp = '';
+
+document.addEventListener('DOMContentLoaded', () => {
+    const user = getCurrentUser();
+    if (!user) { alert('Please login to checkout.'); window.location.href = '/login.html?redirect=checkout'; return; }
+    if (isAdmin()) { alert('Admins cannot place orders.'); window.location.href = '/admin.html'; return; }
+
+    const cart = getCartItems();
+    if (cart.length === 0) { alert('Your cart is empty!'); window.location.href = '/index.html'; return; }
+
+    renderSummary(cart, user);
+});
+
+function renderSummary(cart, user) {
+    const container = document.getElementById('co-items');
+    let subtotal = 0;
+    container.innerHTML = cart.map(item => {
+        const total = item.price * item.quantity;
+        subtotal += total;
+        return `<div class="co-item">
+            <img src="${item.imageUrl}" class="co-img" onerror="this.src='https://via.placeholder.com/60'">
+            <div>
+                <div class="co-title">${item.title.substring(0,45)}${item.title.length>45?'…':''}</div>
+                <div class="co-qty">Qty: ${item.quantity}</div>
+            </div>
+            <div class="co-price">${formatINR(total)}</div>
+        </div>`;
+    }).join('');
+
+    const delivery = subtotal >= 499 ? 0 : 49;
+    const total = subtotal + delivery;
+    document.getElementById('co-subtotal').textContent = formatINR(subtotal);
+    document.getElementById('co-delivery').textContent = delivery === 0 ? 'FREE 🎉' : formatINR(delivery);
+    document.getElementById('co-total').textContent = formatINR(total);
+    document.getElementById('pay-amount').textContent = formatINR(total);
+    document.getElementById('delivery-addr').textContent = `${user.fullName || ''}, ${user.city || 'India'}`;
+
+    window._checkoutTotal = total;
+    window._checkoutCart  = cart;
+}
+
+function switchTab(tab, btn) {
+    activeTab = tab;
+    document.querySelectorAll('.pay-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.pay-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + tab).classList.add('active');
+}
+
+function selectUpi(el) {
+    document.querySelectorAll('.upi-app').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedUpiApp = el.textContent.trim().split(' ').pop(); // Get 'GPay', 'PhonePe' etc.
+    
+    // Generate and show QR Code
+    const qrContainer = document.getElementById('qr-container');
+    const qrImg = document.getElementById('qr-img');
+    const appNameEl = document.getElementById('selected-app-name');
+    const amountEl = document.getElementById('qr-amount-text');
+    
+    const amount = window._checkoutTotal;
+    const upiId = 'swapniltayde325-1@okhdfcbank'; 
+    const upiUri = `upi://pay?pa=${upiId}&pn=OnlineShoppingWeb&am=${amount}&cu=INR`;
+    
+    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiUri)}`;
+    appNameEl.textContent = selectedUpiApp;
+    amountEl.textContent = formatINR(amount);
+    
+    qrContainer.classList.add('show');
+}
+
+function formatCard(el) {
+    let v = el.value.replace(/\D/g,'');
+    el.value = v.match(/.{1,4}/g)?.join(' ') || v;
+}
+function formatExpiry(el) {
+    let v = el.value.replace(/\D/g,'');
+    if (v.length >= 3) v = v.substring(0,2) + '/' + v.substring(2);
+    el.value = v;
+}
+
+async function processPayment() {
+    const errEl = document.getElementById('pay-err');
+    errEl.style.display = 'none';
+    const btn = document.getElementById('pay-btn');
+
+    // Basic validation per tab
+    if (activeTab === 'upi') {
+        const upiId = document.getElementById('upi-id').value.trim();
+        if (!selectedUpiApp && !upiId) {
+            errEl.textContent = '⚠️ Please select a UPI app or enter your UPI ID.';
+            errEl.style.display = 'block'; return;
+        }
+    } else if (activeTab === 'card') {
+        const cardNum = document.getElementById('card-num').value.replace(/\s/g,'');
+        if (cardNum.length < 16) {
+            errEl.textContent = '⚠️ Please enter a valid 16-digit card number.';
+            errEl.style.display = 'block'; return;
+        }
+    } else if (activeTab === 'netbank') {
+        const bank = document.querySelector('#panel-netbank select').value;
+        if (!bank) {
+            errEl.textContent = '⚠️ Please select your bank.';
+            errEl.style.display = 'block'; return;
+        }
+    }
+
+    // Simulate payment processing
+    const oldBtnText = btn.innerHTML;
+    btn.disabled = true;
+    
+    if (selectedUpiApp) {
+        btn.innerHTML = `<span class="spinner" style="width:16px;height:16px;display:inline-block;margin-right:8px;vertical-align:middle;border-width:2px"></span> Verifying UPI Payment...`;
+        // simulate a longer check for QR
+        await new Promise(r => setTimeout(r, 4500)); 
+    } else {
+        btn.textContent = '⏳ Processing Order...';
+        await new Promise(r => setTimeout(r, 2000));
+    }
+
+    // Save order to backend
+    const cartItems = window._checkoutCart.map(item => ({
+        productId: item.id,
+        quantity: item.quantity,
+        unitPrice: item.price
+    }));
+
+    try {
+        const orderResponse = await api.createOrder({
+            totalAmount: window._checkoutTotal,
+            items: cartItems
+        });
+
+        if (orderResponse.success) {
+            // Clear cart
+        localStorage.removeItem('cart');
+        renderNavbar();
+
+            // Show success
+            document.getElementById('display-order-id').textContent = 'ORD-' + orderResponse.data.id;
+            document.getElementById('success-screen').classList.add('show');
+            
+            // Scroll to top to ensure success screen is visible
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            throw new Error(orderResponse.message);
+        }
+    } catch (error) {
+        errEl.textContent = '❌ Failed to place order: ' + (error.message || 'Server error');
+        errEl.style.display = 'block';
+        btn.innerHTML = oldBtnText;
+        btn.disabled = false;
+    }
+}
+</script>
+</body>
+</html>

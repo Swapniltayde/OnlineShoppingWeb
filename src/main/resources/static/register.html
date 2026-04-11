@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account - Online Shoppinng Web</title>
+    <meta name="description" content="Join Onlien Shopping Web to shop top-tier products with fast delivery.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* ── Page layout ── */
+        .register-page {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        /* ── Left panel (brand) ── */
+        .register-brand {
+            background: var(--bg-dark);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .register-brand::before {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.18) 0%, transparent 70%);
+            top: -80px;
+            left: -80px;
+            border-radius: 50%;
+        }
+
+        .register-brand::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.12) 0%, transparent 70%);
+            bottom: -60px;
+            right: -60px;
+            border-radius: 50%;
+        }
+
+        .brand-logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 2.5rem;
+            letter-spacing: -0.5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand-logo span {
+            color: #fff;
+        }
+
+        .brand-headline {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.2;
+            margin-bottom: 1.25rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand-headline em {
+            font-style: normal;
+            color: var(--primary-color);
+        }
+
+        .brand-sub {
+            font-size: 1.05rem;
+            color: #9ca3af;
+            line-height: 1.7;
+            max-width: 380px;
+            margin-bottom: 2.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand-perks {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand-perks li {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+            color: #d1d5db;
+        }
+
+        .perk-icon {
+            width: 28px;
+            height: 28px;
+            background: rgba(245, 158, 11, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        /* ── Right panel (form) ── */
+        .register-form-panel {
+            background: var(--bg-light);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem 2rem;
+        }
+
+        .register-card {
+            width: 100%;
+            max-width: 460px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04);
+            padding: 2.5rem 2.5rem 2rem;
+        }
+
+        .register-card-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .register-card-header h1 {
+            font-size: 1.75rem;
+            color: var(--text-dark);
+            margin-bottom: 0.4rem;
+        }
+
+        .register-card-header p {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        /* ── Progress Stepper ── */
+        .step-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin-bottom: 2rem;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .step-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            color: #9ca3af;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-circle {
+            background: var(--primary-color);
+            color: #fff;
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2);
+        }
+
+        .step.done .step-circle {
+            background: #10b981;
+            color: #fff;
+        }
+
+        .step-label {
+            font-size: 0.7rem;
+            color: #9ca3af;
+            font-weight: 500;
+        }
+
+        .step.active .step-label {
+            color: var(--primary-color);
+        }
+
+        .step-line {
+            width: 60px;
+            height: 2px;
+            background: #e5e7eb;
+            position: relative;
+            top: -12px;
+            transition: background 0.3s ease;
+        }
+
+        .step-line.done {
+            background: #10b981;
+        }
+
+        /* ── Input group ── */
+        .input-group {
+            position: relative;
+            margin-bottom: 1.25rem;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1rem;
+            color: #9ca3af;
+            pointer-events: none;
+        }
+
+        .input-group .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.4rem;
+        }
+
+        .input-group .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.75rem;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            background: #f9fafb;
+            color: var(--text-dark);
+            transition: all 0.25s ease;
+        }
+
+        .input-group .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15);
+        }
+
+        .input-group .form-control.is-valid {
+            border-color: #10b981;
+            background: #fff;
+        }
+
+        .input-group .form-control.is-invalid {
+            border-color: #ef4444;
+        }
+
+        .validation-msg {
+            font-size: 0.78rem;
+            margin-top: 0.35rem;
+            display: none;
+        }
+
+        .validation-msg.show {
+            display: block;
+        }
+
+        .validation-msg.error {
+            color: #ef4444;
+        }
+
+        .validation-msg.success {
+            color: #10b981;
+        }
+
+        .input-check {
+            position: absolute;
+            right: 1rem;
+            top: calc(50% + 12px);
+            transform: translateY(-50%);
+            font-size: 1rem;
+            display: none;
+        }
+
+        .input-check.show {
+            display: block;
+        }
+
+        /* ── Password strength ── */
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: calc(50% + 12px);
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #9ca3af;
+            font-size: 1rem;
+            background: none;
+            border: none;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .strength-bar-wrap {
+            margin-top: 0.5rem;
+            display: flex;
+            gap: 4px;
+        }
+
+        .strength-seg {
+            flex: 1;
+            height: 4px;
+            border-radius: 4px;
+            background: #e5e7eb;
+            transition: background 0.3s ease;
+        }
+
+        .strength-label {
+            font-size: 0.75rem;
+            margin-top: 0.3rem;
+            color: #9ca3af;
+            transition: color 0.3s ease;
+        }
+
+        /* ── Terms checkbox ── */
+        .terms-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .terms-row input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-color);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .terms-row label {
+            font-size: 0.85rem;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        .terms-row a {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+
+        /* ── Submit button ── */
+        .btn-register {
+            width: 100%;
+            padding: 0.9rem;
+            background: var(--primary-color);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: background 0.25s ease, transform 0.15s ease, box-shadow 0.25s ease;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+        }
+
+        .btn-register:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-register:active {
+            transform: translateY(0);
+        }
+
+        .btn-register:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ── Divider ── */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            color: #9ca3af;
+            font-size: 0.8rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+        /* ── Socials ── */
+        .social-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-social {
+            flex: 1;
+            padding: 0.7rem;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            background: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: #374151;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .btn-social:hover {
+            border-color: var(--primary-color);
+            background: #fffbeb;
+        }
+
+        /* ── Message & footer link ── */
+        .server-msg {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .server-msg.error {
+            background: #fef2f2;
+            border: 1px solid #fca5a5;
+            color: #991b1b;
+            display: block;
+        }
+
+        .server-msg.success {
+            background: #ecfdf5;
+            border: 1px solid #6ee7b7;
+            color: #065f46;
+            display: block;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .login-link a {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* ── Spinner inside button ── */
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .register-page {
+                grid-template-columns: 1fr;
+            }
+
+            .register-brand {
+                display: none;
+            }
+
+            .register-form-panel {
+                padding: 2rem 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="register-page">
+
+        <!-- ════ LEFT BRAND PANEL ════ -->
+        <aside class="register-brand">
+            <div class="brand-logo">Online&#8209;<span>Shopping Web</span></div>
+            <h2 class="brand-headline">Everything you<br>need, <em>delivered</em><br>to your door.</h2>
+            <p class="brand-sub">
+                Join millions of happy shoppers who trust Online Shopping Web for the latest electronics, fashion, and
+                more — with
+                free returns and lightning-fast shipping.
+            </p>
+            <ul class="brand-perks">
+                <li><span class="perk-icon">🚚</span> Free shipping on orders over $49</li>
+                <li><span class="perk-icon">🔒</span> Secure checkout &amp; data privacy</li>
+                <li><span class="perk-icon">↩️</span> Easy 30-day free returns</li>
+                <li><span class="perk-icon">⚡</span> Exclusive member-only deals</li>
+            </ul>
+        </aside>
+
+        <!-- ════ RIGHT FORM PANEL ════ -->
+        <section class="register-form-panel">
+            <div class="register-card">
+
+                <!-- Header -->
+                <div class="register-card-header">
+                    <h1>Create Your Account</h1>
+                    <p>Already have one? <a href="/login.html" style="color:var(--primary-color);font-weight:600;">Sign
+                            in</a></p>
+                </div>
+
+                <!-- Step Indicator -->
+                <div class="step-bar" id="step-bar">
+                    <div class="step active" id="step1">
+                        <div class="step-circle">1</div>
+                        <span class="step-label">Details</span>
+                    </div>
+                    <div class="step-line" id="line1"></div>
+                    <div class="step" id="step2">
+                        <div class="step-circle">2</div>
+                        <span class="step-label">Security</span>
+                    </div>
+                    <div class="step-line" id="line2"></div>
+                    <div class="step" id="step3">
+                        <div class="step-circle">✓</div>
+                        <span class="step-label">Done</span>
+                    </div>
+                </div>
+
+                <!-- Server Message -->
+                <div class="server-msg" id="server-msg"></div>
+
+                <!-- Register Form -->
+                <form id="register-form" novalidate autocomplete="on">
+
+                    <!-- Full Name -->
+                    <div class="input-group">
+                        <label class="form-label" for="fullName">Full Name</label>
+                        <span class="input-icon">👤</span>
+                        <input type="text" id="fullName" class="form-control" placeholder="Jane Doe" autocomplete="name"
+                            required>
+                        <span class="input-check" id="check-name"></span>
+                        <p class="validation-msg" id="msg-name"></p>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="input-group">
+                        <label class="form-label" for="email">Email Address</label>
+                        <span class="input-icon">✉️</span>
+                        <input type="email" id="email" class="form-control" placeholder="jane@example.com"
+                            autocomplete="email" required>
+                        <span class="input-check" id="check-email"></span>
+                        <p class="validation-msg" id="msg-email"></p>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="input-group">
+                        <label class="form-label" for="password">Password</label>
+                        <span class="input-icon">🔑</span>
+                        <input type="password" id="password" class="form-control" placeholder="Min 8 characters"
+                            autocomplete="new-password" required>
+                        <button type="button" class="password-toggle" id="pw-toggle"
+                            aria-label="Toggle password visibility">👁</button>
+                        <div class="strength-bar-wrap" id="strength-bar">
+                            <div class="strength-seg" id="seg1"></div>
+                            <div class="strength-seg" id="seg2"></div>
+                            <div class="strength-seg" id="seg3"></div>
+                            <div class="strength-seg" id="seg4"></div>
+                        </div>
+                        <p class="strength-label" id="strength-label">Enter a password</p>
+                        <p class="validation-msg" id="msg-password"></p>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="input-group">
+                        <label class="form-label" for="confirmPassword">Confirm Password</label>
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="confirmPassword" class="form-control"
+                            placeholder="Re-enter your password" autocomplete="new-password" required>
+                        <span class="input-check" id="check-confirm"></span>
+                        <p class="validation-msg" id="msg-confirm"></p>
+                    </div>
+
+                    <!-- Terms -->
+                    <div class="terms-row">
+                        <input type="checkbox" id="terms" required>
+                        <label for="terms">
+                            I agree to the <a href="#" onclick="return false">Terms of Service</a> and
+                            <a href="#" onclick="return false">Privacy Policy</a>
+                        </label>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" class="btn-register" id="submit-btn">
+                        <span id="btn-text">Create Account</span>
+                    </button>
+
+                </form>
+
+                <!-- Divider -->
+                <div class="divider">or continue with</div>
+
+                <!-- Social Buttons -->
+                <div class="social-row">
+                    <button class="btn-social" onclick="return false">
+                        <svg width="18" height="18" viewBox="0 0 18 18">
+                            <path
+                                d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"
+                                fill="#4285F4" />
+                            <path
+                                d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.859-3.048.859-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"
+                                fill="#34A853" />
+                            <path
+                                d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"
+                                fill="#FBBC05" />
+                            <path
+                                d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"
+                                fill="#EA4335" />
+                        </svg>
+                        Google
+                    </button>
+                    <button class="btn-social" onclick="return false">
+                        <svg width="18" height="18" fill="#1877f2" viewBox="0 0 24 24">
+                            <path
+                                d="M22 12c0-5.522-4.477-10-10-10S2 6.478 2 12c0 4.991 3.657 9.128 8.437 9.878v-6.988H7.898V12h2.539v-2.21c0-2.508 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" />
+                        </svg>
+                        Facebook
+                    </button>
+                </div>
+
+                <!-- Login Link (mobile fallback) -->
+                <div class="login-link">
+                    Already have an account? <a href="/login.html">Sign In</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        // ── Validation Helpers ──────────────────────────────────────────────────
+        function showValid(inputId, checkId, msgId) {
+            document.getElementById(inputId).classList.add('is-valid');
+            document.getElementById(inputId).classList.remove('is-invalid');
+            const check = document.getElementById(checkId);
+            if (check) { check.textContent = '✅'; check.classList.add('show'); }
+            if (msgId) { const m = document.getElementById(msgId); m.className = 'validation-msg'; m.style.display = 'none'; }
+        }
+        function showInvalid(inputId, checkId, msgId, msg) {
+            document.getElementById(inputId).classList.add('is-invalid');
+            document.getElementById(inputId).classList.remove('is-valid');
+            const check = document.getElementById(checkId);
+            if (check) { check.textContent = ''; check.classList.remove('show'); }
+            if (msgId) {
+                const m = document.getElementById(msgId);
+                m.textContent = msg;
+                m.className = 'validation-msg error show';
+                m.style.display = 'block';
+            }
+        }
+
+        // ── Full Name Live Validation ──────────────────────────────────
+        document.getElementById('fullName').addEventListener('blur', () => {
+            const val = document.getElementById('fullName').value.trim();
+            if (val.length >= 2 && val.includes(' ')) showValid('fullName', 'check-name', 'msg-name');
+            else showInvalid('fullName', 'check-name', 'msg-name', 'Please enter your first and last name.');
+            updateStep();
+        });
+
+        // ── Email Live Validation ──────────────────────────────────────
+        document.getElementById('email').addEventListener('blur', () => {
+            const val = document.getElementById('email').value.trim();
+            const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+            if (valid) showValid('email', 'check-email', 'msg-email');
+            else showInvalid('email', 'check-email', 'msg-email', 'Please enter a valid email address.');
+            updateStep();
+        });
+
+        // ── Password Strength ──────────────────────────────────────────
+        const segs = ['seg1', 'seg2', 'seg3', 'seg4'];
+        const colors = ['#ef4444', '#f59e0b', '#3b82f6', '#10b981'];
+        const labels = ['Too weak', 'Fair', 'Good', 'Strong 💪'];
+
+        document.getElementById('password').addEventListener('input', () => {
+            const val = document.getElementById('password').value;
+            let score = 0;
+            if (val.length >= 8) score++;
+            if (/[A-Z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+
+            segs.forEach((id, i) => {
+                document.getElementById(id).style.background = i < score ? colors[score - 1] : '#e5e7eb';
+            });
+            const lbl = document.getElementById('strength-label');
+            if (val === '') { lbl.textContent = 'Enter a password'; lbl.style.color = '#9ca3af'; }
+            else { lbl.textContent = labels[score - 1] || 'Too weak'; lbl.style.color = colors[score - 1] || '#ef4444'; }
+
+            // Revalidate confirm if already typed
+            if (document.getElementById('confirmPassword').value) checkConfirm();
+            updateStep();
+        });
+
+        // ── Confirm Password ──────────────────────────────────────────
+        function checkConfirm() {
+            const pw = document.getElementById('password').value;
+            const cpw = document.getElementById('confirmPassword').value;
+            if (cpw && pw === cpw) showValid('confirmPassword', 'check-confirm', 'msg-confirm');
+            else if (cpw) showInvalid('confirmPassword', 'check-confirm', 'msg-confirm', 'Passwords do not match.');
+        }
+        document.getElementById('confirmPassword').addEventListener('input', () => { checkConfirm(); updateStep(); });
+
+        // ── Toggle password visibility ──────────────────────────────────
+        document.getElementById('pw-toggle').addEventListener('click', () => {
+            const pw = document.getElementById('password');
+            if (pw.type === 'password') { pw.type = 'text'; document.getElementById('pw-toggle').textContent = '🙈'; }
+            else { pw.type = 'password'; document.getElementById('pw-toggle').textContent = '👁'; }
+        });
+
+        // ── Step Bar Logic ───────────────────────────────────────────
+        function updateStep() {
+            const nameOk = document.getElementById('fullName').classList.contains('is-valid');
+            const emailOk = document.getElementById('email').classList.contains('is-valid');
+            const pwOk = document.getElementById('password').value.length >= 8;
+            const cfmOk = document.getElementById('confirmPassword').classList.contains('is-valid');
+
+            if (nameOk && emailOk) {
+                document.getElementById('step1').classList.add('done');
+                document.getElementById('step1').classList.remove('active');
+                document.getElementById('line1').classList.add('done');
+                document.getElementById('step2').classList.add('active');
+            } else {
+                document.getElementById('step1').classList.remove('done');
+                document.getElementById('step1').classList.add('active');
+                document.getElementById('line1').classList.remove('done');
+                document.getElementById('step2').classList.remove('active');
+            }
+            if (pwOk && cfmOk) {
+                document.getElementById('step2').classList.add('done');
+                document.getElementById('step2').classList.remove('active');
+                document.getElementById('line2').classList.add('done');
+                document.getElementById('step3').classList.add('active');
+            } else {
+                document.getElementById('step2').classList.remove('done');
+                document.getElementById('line2').classList.remove('done');
+                document.getElementById('step3').classList.remove('active');
+            }
+        }
+
+        // ── Form Submit ──────────────────────────────────────────────
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msg = document.getElementById('server-msg');
+            msg.className = 'server-msg'; // hide
+
+            const fullName = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const agreed = document.getElementById('terms').checked;
+
+            if (!fullName || !email || !password || !confirmPassword) {
+                msg.textContent = '⚠️ Please fill in all fields.'; msg.className = 'server-msg error'; return;
+            }
+            if (password !== confirmPassword) {
+                msg.textContent = '⚠️ Passwords do not match.'; msg.className = 'server-msg error'; return;
+            }
+            if (password.length < 8) {
+                msg.textContent = '⚠️ Password must be at least 8 characters.'; msg.className = 'server-msg error'; return;
+            }
+            if (!agreed) {
+                msg.textContent = '⚠️ You must agree to the terms.'; msg.className = 'server-msg error'; return;
+            }
+
+            try {
+                const res = await api.register(fullName, email, password);
+
+                if (res.success) {
+                    msg.textContent = '🎉 Account created! Redirecting to login…';
+                    msg.className = 'server-msg success';
+                    updateStep();
+                    setTimeout(() => { window.location.href = '/login.html'; }, 2000);
+                } else {
+                    msg.textContent = '❌ ' + (res.message || 'Registration failed.');
+                    msg.className = 'server-msg error';
+                    btn.disabled = false;
+                    btn.innerHTML = '<span id="btn-text">Create Account</span>';
+                }
+            } catch (err) {
+                msg.textContent = '❌ Connection error. Please try again.';
+                msg.className = 'server-msg error';
+                btn.disabled = false;
+                btn.innerHTML = '<span id="btn-text">Create Account</span>';
+            }
+        });
+    </script>
+</body>
+
+</html>
