@@ -1,6 +1,6 @@
 // api.js - Pointing to the Render backend for split-stack hosting
-const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-    ? '/api' 
+const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
+    ? (window.location.port === '8081' ? '/api' : 'http://localhost:8081/api')
     : 'https://onlineshoppingweb.onrender.com/api';
 
 const api = {

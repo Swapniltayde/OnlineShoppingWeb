@@ -69,7 +69,9 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList(
             "https://online-shopping-web-five.vercel.app", 
             "http://localhost:8081",
-            "http://localhost:3000"
+            "http://localhost:3000",
+            "http://localhost:5500",
+            "http://127.0.0.1:5500"
         )); 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Cache-Control"));
