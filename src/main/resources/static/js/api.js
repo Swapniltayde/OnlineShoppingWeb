@@ -1,5 +1,7 @@
-// api.js - All API calls integrated with Spring Boot Backend
-const API_BASE_URL = '/api';
+// api.js - Pointing to the Render backend for split-stack hosting
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    ? '/api' 
+    : 'https://onlineshoppingweb.onrender.com/api';
 
 const api = {
     async fetch(endpoint, options = {}) {
