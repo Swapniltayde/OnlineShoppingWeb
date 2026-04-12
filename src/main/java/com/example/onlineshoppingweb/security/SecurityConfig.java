@@ -67,12 +67,16 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         // Be specific about the origins to avoid issues with credentials
         configuration.setAllowedOrigins(Arrays.asList(
+            "https://onlineshoppingweb-4.onrender.com",
             "https://online-shopping-web-five.vercel.app", 
             "http://localhost:8081",
             "http://localhost:3000",
             "http://localhost:5500",
             "http://127.0.0.1:5500"
         )); 
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+            "https://*.onrender.com"
+        ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Cache-Control"));
         configuration.setAllowCredentials(true);
