@@ -271,7 +271,7 @@ async function loadProducts() {
         card.innerHTML = `
             <a href="/product-detail.html?id=${product.id}" class="product-img-link">
                 <img src="${product.imageUrl}" alt="${product.title}" class="product-image" loading="lazy" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
-                <span class="product-category-badge">${product.category}</span>
+                <span class="product-category-badge">${product.category?.name || 'Uncategorized'}</span>
             </a>
             <div class="product-info">
                 <h3 class="product-title">${product.title}</h3>
@@ -321,7 +321,7 @@ async function loadProductDetail() {
             <img src="${product.imageUrl}" alt="${product.title}" class="detail-image" onerror="this.src='https://via.placeholder.com/500x500?text=No+Image'">
         </div>
         <div class="detail-info">
-            <span class="product-category-badge" style="margin-bottom:1rem;display:inline-block">${product.category}</span>
+            <span class="product-category-badge" style="margin-bottom:1rem;display:inline-block">${product.category?.name || 'Uncategorized'}</span>
             <h1>${product.title}</h1>
             <div class="detail-rating">⭐⭐⭐⭐⭐ <span style="color:#6b7280;font-size:0.9rem">(1,284 ratings)</span></div>
             <div class="stock-badge">✅ In Stock (${product.stockQuantity} units left)</div>
