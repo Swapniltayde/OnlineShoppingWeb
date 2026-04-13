@@ -145,7 +145,7 @@ function renderNavbar() {
 
     navbar.innerHTML = `
         <div class="container nav-content">
-            <a href="/index.html" class="nav-brand"><span class="brand-icon">🛍️</span>Online Shopping Web</a>
+            <a href="/index.html" class="nav-brand"><img src="/images/logo.png" class="nav-logo" alt="Logo">Online Shopping Web</a>
             <button class="nav-hamburger" onclick="toggleMobileMenu()">☰</button>
             <div class="nav-links" id="nav-links">
                 <a href="/index.html">Home</a>
